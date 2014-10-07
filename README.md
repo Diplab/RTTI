@@ -88,11 +88,11 @@ public class DemogetClass {
 
 }
 
+```
 Java允許我們從多種管道為一個class生成對應的Class object。整理如下圖：
 
 ![Class_object.png](img/Class_object.png)
 
-```
 
 而 Java 只有在真正要用到 class 的時候才會將其載入，而真正用到的時候是指以下情況：
 - 使用 class 生成 object 時
