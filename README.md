@@ -3,24 +3,21 @@ Run-Time Type Information
 ## Outline
 
 - [前言](#前言)
-
 - [傳統的RTTI機制](#傳統的RTTI機制)
 	+ [向上轉型或向下轉型](#向上轉型或向下轉型)
 	+ [Class 物件](#Class 物件)
 	+ [使用instanceof](#使用instanceof)
-
 - [Reflection機制](#Reflection機制)
 	+ [RTTI機制與Reflection機制差異](#RTTI機制與Reflection機制差異)
-
 - [參考文獻](#參考文獻)
 
 ## 前言
-執行期型別資訊(Run-Time Type Information, RTTI)機制
+執行期型別資訊(Run-Time Type Information, RTTI)機制，
 讓你得以在程式執行期間找出、並使用型別資訊。
 
 包含兩種形式：
-- 傳統的RTTI機制，他假設你在編譯期和執行期擁有所有型別資訊。
-- Reflection機制，允許你在執行期間找出和class相關的資訊。
+- [傳統的RTTI機制](#傳統的RTTI機制)，他假設你在編譯期和執行期擁有所有型別資訊。
+- [Reflection機制](#Reflection機制)，允許你在執行期間找出和class相關的資訊。
 
 ## 傳統的RTTI機制
 
@@ -75,18 +72,26 @@ public class DemoPolymorphismAndUpcasting {
 每一個 object 都可以透過 getClass() 的方式取得 Class object，以下為一個簡單的範例：
 
 ```java
-public class ClassDemo {
-   public static void main(String args[]) {
-       String name = "godleon";
-       Class stringClass = name.getClass();
 
-       System.out.println("類別名稱：" + stringClass.getName());
-       System.out.println("是否為介面：" + stringClass.isInterface());
-       System.out.println("是否為基本型態：" + stringClass.isPrimitive());
-       System.out.println("是否為陣列物件：" + stringClass.isArray());
-       System.out.println("父類別名稱：" + stringClass.getSuperclass().getName());
-   }
+public class DemogetClass {
+
+	public static void main(String[] args) {
+	       String name = "godleon";
+	       Class stringClass = name.getClass();
+
+	       System.out.println("類別名稱：" + stringClass.getName());
+	       System.out.println("是否為介面：" + stringClass.isInterface());
+	       System.out.println("是否為基本型態：" + stringClass.isPrimitive());
+	       System.out.println("是否為陣列物件：" + stringClass.isArray());
+	       System.out.println("父類別名稱：" + stringClass.getSuperclass().getName());
+	}
+
 }
+
+Java允許我們從多種管道為一個class生成對應的Class object。整理如下圖：
+
+![Class_object.png](img/Class_object.png)
+
 ```
 
 而 Java 只有在真正要用到 class 的時候才會將其載入，而真正用到的時候是指以下情況：
@@ -95,21 +100,22 @@ public class ClassDemo {
 
 若僅是宣告並不會載入 class，以下用一段程式碼來測試：
 ```java
-TestClass.java
-public class TestClass {
+
+class TestClass {
    static {
        System.out.println("類別被載入");
    }
 }
-LoadClassTest.java
-public class LoadClassTest {
-   public static void main(String args[]) {
-       TestClass test = null;  //class不會載入，因此不會顯示「類別被載入」
-       System.out.println("宣告 TestClass 參考名稱");
-       test = new TestClass(); //class被載入，顯示「類別被載入」
-       System.out.println("生成 TestClass 實例");
-   }
+
+public class DemoLoadClass {
+	   public static void main(String args[]) {
+	       TestClass test = null;  //class不會載入，因此不會顯示「類別被載入」
+	       System.out.println("宣告 TestClass 參考名稱");
+	       test = new TestClass(); //class被載入，顯示「類別被載入」
+	       System.out.println("生成 TestClass 實例");
+	   }
 }
+
 ```
 
 此外，由於 Java 支援 Run-Time Type Identification(RTTI，執行時期型別辨識)，因此 Class 的訊息在編譯時期就會被加入 .class 檔案中；
