@@ -15,7 +15,7 @@ Run-Time Type Information
 執行期型別資訊(Run-Time Type Information, RTTI)機制，
 讓你得以在程式執行期間找出、並使用型別資訊。
 
-包含兩種形式：
+包含兩種機制：
 - [傳統的RTTI機制](#傳統的RTTI機制)，他假設你在編譯期和執行期擁有所有型別資訊。
 - [Reflection機制](#Reflection機制)，允許你在執行期間找出和class相關的資訊。
 
@@ -92,6 +92,7 @@ public class DemogetClass {
 Java允許我們從多種管道為一個class生成對應的Class object。整理如下圖：
 
 ![Class_object.png](img/Class_object.png)
+![Class_literals.png](img/Class_literals.png)
 
 
 而 Java 只有在真正要用到 class 的時候才會將其載入，而真正用到的時候是指以下情況：
@@ -123,19 +124,50 @@ public class DemoLoadClass {
 而一個 class 在 JVM 中只會有一個 Class object，所以每個 object 都可以透過 getClass() 或是 .class 屬性取得 Class object。
 之前有說過，在 Java 中任何東西皆為 object，因此 Array 也不例外，甚至如 primitive type、關鍵字 void 都有相對應的 Class object，以下用一段程式來說明：
 ```java
-public class ClassDemo2 {
-   public static void main(String args[]) {
-       System.out.println(boolean.class);  //boolean
-       System.out.println(void.class); //void
 
-       int[] intAry = new int[10];
-       System.out.println(intAry.getClass().toString());   //class [I
-
-       double[] dblAry = new double[10];
-       System.out.println(dblAry.getClass().toString());   //class [D
-   }
+class Candy {
+  static {
+    System.out.println("Loading Candy");
+  }
 }
+
+class Gum {
+  static {
+    System.out.println("Loading Gum");
+  }
+}
+
+class Cookie {
+  static {
+    System.out.println("Loading Cookie");
+  }
+}
+
+public class DemoClassLoaderWorks {
+
+	  public static void main(String[] args) {
+		    System.out.println("inside main");
+		    new Candy();
+		    System.out.println("After creating Candy");
+		    try {
+		      Class.forName("Gum");
+		    } catch(ClassNotFoundException e) {
+		      e.printStackTrace(System.err);
+		    }
+		    System.out.println(
+		      "After Class.forName(\"Gum\")");
+		    new Cookie();
+		    System.out.println("After creating Cookie");
+		  }
+
+}
+
 ```
+
+上面的程式使用了forName()這個方法來取得Class object reference，他接受一個
+字串作為引數，字串內含有某個『你想取其Class物件』的reference的文字表示式。
+如果class還沒備載入過，forName()函式內則會執行載入的動作，而在載入過程中會執行class內的static子句。
+
 
 ### 使用instanceof
 Java還有第三種RTTI形式，那就是關鍵字instanceof，
@@ -151,6 +183,46 @@ if ( x instanceof Dog )
 當你手上沒有其他資訊可以告訴你物件型別時，在向下轉型之前先運用instanceof進行檢查，是很重要的一件事
 否則你可能會收到ClassCastException。
 
+查詢型別資訊時，如果你運用instanceof(或isInstance())，情況和『直接比較Class物件』有個重大差異：
+
+```java
+class Base {}
+class Derived extends Base {}
+
+public class FamilyVsExactType {
+  static void test(Object x) {
+    System.out.println("Testing x of type " +
+      x.getClass());
+    System.out.println("x instanceof Base " +
+      (x instanceof Base));
+    System.out.println("x instanceof Derived " +
+      (x instanceof Derived));
+    System.out.println("Base.isInstance(x) " +
+      Base.class.isInstance(x));
+    System.out.println("Derived.isInstance(x) " +
+      Derived.class.isInstance(x));
+    System.out.println(
+      "x.getClass() == Base.class " +
+      (x.getClass() == Base.class));
+    System.out.println(
+      "x.getClass() == Derived.class " +
+      (x.getClass() == Derived.class));
+    System.out.println(
+      "x.getClass().equals(Base.class)) " +
+      (x.getClass().equals(Base.class)));
+    System.out.println(
+      "x.getClass().equals(Derived.class)) " +
+      (x.getClass().equals(Derived.class)));
+  }
+  public static void main(String[] args) {
+    test(new Base());
+    test(new Derived());
+  }
+} ///:~
+```
+
+上例中instanceof所表現的意義是『你就是這個Class嗎?或是其derived class?』
+但如果是用== 比較兩個Class物件，那就不理會繼承關係，其意義是『正好就是這個型別嗎?』
 
 
 ## Reflection機制
