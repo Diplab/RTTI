@@ -27,7 +27,7 @@ Run-Time Type Information
 但向下轉型(Downcasting)卻是有風險的，編譯器不會讓你向下轉型至實際上不是該型別之subclass的型別，
 轉型錯誤時會擲出ClassCastException。
 
-```java
+```
 import java.lang.reflect.Array;
 import java.util.*;
 
