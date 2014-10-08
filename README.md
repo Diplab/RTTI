@@ -65,6 +65,8 @@ public class DemoPolymorphismAndUpcasting {
 ```
 
 ### Class 物件
+Class物件內包含與class相關的各種資訊。每當你撰寫新的class並編譯完成，
+就會產生一個Class物件儲存於相同的.class檔內。
 為了妥善使用有限的資源，Java 在真正需要使用到 class 的時候才會將其載入，
 而載入 Class 的工作是由 Class Loader(類別載入器) 所負責。
 當每一個 class 被載入時，JVM 就會為其自動產生一個 Class object。
