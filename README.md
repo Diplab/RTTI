@@ -233,62 +233,132 @@ Reflection在Java指的是我們可以於執行期載入、探知、使用編譯
 獲悉其完整構造（但不包括 methods定義），並生成其物件實體、或對其 fields 設值、或喚起其 methods。
 。這種「看透 class」的能力（the ability of the program to examine itself）被稱為 introspection(內省)。
 
+以下為一些簡單範例：
+
+Example1 : Get class name from object
 ```java
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
  
-class pet{
-	private String name;
-	public pet(String name){
-		this.name = name;
-	}	
-	public void ShowName(){
-		System.out.println(name);
-	}
-}
- 
-class dog extends pet{
-	public dog(String name){
-		super(name);
-	}
-}
- 
-class cat extends pet{
-	public cat(String name){
-		super(name);
-	}
-}
- 
-class Ted extends cat{
-	public Ted(String name){
-		super(name);
-	}
-	
-	public void move(){
-		System.out.println("Move");
-	}
-	
-	public void miue(){
-		System.out.println("miue");
+class Foo {
+	public void print() {
+		System.out.println("abc");
 	}
 }
 
-public class DemoReflect {
+public class DemoGetClassName {
 
-	public static void main(String[] args) throws Exception{
-		Class<?> c = Class.forName("Ted");
-		Method []methods = c.getMethods();
-		Constructor []constructors = c.getConstructors();
-		
-		for(Method method : methods){
-			System.out.println(method.toString());
-		}
-		for(Constructor constructor : constructors){
-			System.out.println(constructor.toString());
-		}
+	public static void main(String[] args){
+		Foo f = new Foo();
+		System.out.println(f.getClass().getName());		
+	}
+}
+```
+
+Example 2: Invoke method on unknown object
+
+若有一個未知的object，使用reflection可以使用這個object，
+並找它裡面是否有一個叫做"print"的方法，然後使用它。
+
+```java
+import java.lang.reflect.Method;
+ 
+class Qoo {
+	public void print() {
+		System.out.println("abc");
+	}
+}
+
+public class DemoUnknownObjectMethod {
+	public static void main(String[] args){
+		Qoo f = new Qoo();
+ 
+		Method method;
+		try {
+			method = f.getClass().getMethod("print", new Class<?>[0]);
+			method.invoke(f);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}			
 	}
 
 }
 ```
+
+Example 3: Create object from Class instance
+
+```java
+public class DemoforName {
+
+	public static void main(String[] args){
+		//create instance of "Class"
+		Class<?> c = null;
+		try{
+			c=Class.forName("Foo");
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+ 
+		//create instance of "Foo"
+		Foo f = null;
+ 
+		try {
+			f = (Foo) c.newInstance();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
+ 
+		f.print();
+	}
+
+}
+
+```
+
+Example 4: Change array size though reflection
+
+```java
+import java.lang.reflect.Array;
+
+public class DemoChangeArraySize {
+
+	public static void main(String[] args) {
+		int[] intArray = { 1, 2, 3, 4, 5 };
+		int[] newIntArray = (int[]) changeArraySize(intArray, 10);
+		print(newIntArray);
+ 
+		String[] atr = { "a", "b", "c", "d", "e" };
+		String[] str1 = (String[]) changeArraySize(atr, 10);
+		print(str1);
+	}
+ 
+	// change array size
+	public static Object changeArraySize(Object obj, int len) {
+		Class<?> arr = obj.getClass().getComponentType();
+		Object newArray = Array.newInstance(arr, len);
+ 
+		//do array copy
+		int co = Array.getLength(obj);
+		System.arraycopy(obj, 0, newArray, 0, co);
+		return newArray;
+	}
+ 
+	// print
+	public static void print(Object obj) {
+		Class<?> c = obj.getClass();
+		if (!c.isArray()) {
+			return;
+		}
+ 
+		System.out.println("\nArray length: " + Array.getLength(obj));
+ 
+		for (int i = 0; i < Array.getLength(obj); i++) {
+			System.out.print(Array.get(obj, i) + " ");
+		}
+	}
+}
+
+```
+
 
 ### RTTI機制與Reflection機制差異
 - 使用RTTI時，編譯器在編譯期即開啟並檢查.class檔，換句話說你可以採用一般方式呼叫物件的所有函式。
@@ -301,7 +371,6 @@ public class DemoReflect {
 - [Java Reflection](http://jjhou.boolan.com/javatwo-2004-reflection.pdf)
 - [Java RTTI and Reflection](http://www.cnblogs.com/fxjwind/p/3430178.html)
 - [Java with RTTI](http://noveltypioneer.blogspot.tw/2014/05/java-with-rtti.html)
-
 
 
 
