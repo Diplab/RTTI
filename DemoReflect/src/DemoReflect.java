@@ -40,8 +40,8 @@ public class DemoReflect {
 
 	public static void main(String[] args) throws Exception{
 		Class<?> c = Class.forName("Ted");
-		Method []methods = c.getMethods();
-		Constructor []constructors = c.getConstructors();
+		Method methods[] = c.getMethods();
+		Constructor constructors[] = c.getConstructors();
 		
 		for(Method method : methods){
 			System.out.println(method.toString());
